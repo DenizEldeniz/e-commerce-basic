@@ -18,7 +18,10 @@ model Product {
   description String? // Açıklama (Opsiyonel olabilir)
   imageUrl    String  // Resim linki
   category    String  // Kategori (Giyim, Elektronik vb.)
-  stock       Int     // Stok adedi (0 ise 'Stokta Yok' diyeceğiz)
+  brand       String  @default("Genel") // Marka
+  stockS      Int     @default(0)
+  stockM      Int     @default(0)
+  stockL      Int     @default(0)
   
   createdAt   DateTime @default(now()) // Oluşturulma tarihi
 }
