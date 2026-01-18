@@ -1,0 +1,59 @@
+.app-footer {
+    margin-top: 60px;
+    background-color: white;
+    border-top: 1px solid #f0f0f0;
+    padding: 40px 0;
+    width: 100%;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+.social-links {
+    display: flex;
+    gap: 25px;
+}
+
+.social-icon {
+    color: #6b7280;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: 50%;
+    background-color: #f9fafb;
+}
+
+.social-icon:hover {
+    color: #3b82f6;
+    background-color: #eff6ff;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.footer-text {
+    text-align: center;
+}
+
+.footer-author {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #111;
+    margin: 0 0 5px 0;
+    letter-spacing: -0.5px;
+}
+
+.footer-copyright {
+    font-size: 0.85rem;
+    color: #9ca3af;
+    margin: 0;
+}

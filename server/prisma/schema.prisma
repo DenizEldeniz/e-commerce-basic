@@ -10,18 +10,34 @@ datasource db {
 
 // ... gerisi aynı kalsın
 
-// Ürün Modeli (Java'daki Class gibi düşün)
+// Ürün Modeli
 model Product {
-  id          Int     @id @default(autoincrement()) // Otomatik artan ID
-  name        String  // Ürün adı
-  price       Float   // Fiyatı
-  description String? // Açıklama (Opsiyonel olabilir)
-  imageUrl    String  // Resim linki
-  category    String  // Kategori (Giyim, Elektronik vb.)
-  brand       String  @default("Genel") // Marka
-  stockS      Int     @default(0)
-  stockM      Int     @default(0)
-  stockL      Int     @default(0)
+  id          Int       @id @default(autoincrement())
+  name        String
+  basePrice   Float     // price -> basePrice olarak değişti
+  imageUrl    String
+  category    String    // 'ayakkabi' | 'kiyafet'
+  brand       String    @default("Genel")
+  description String?
+  createdAt   DateTime  @default(now())
   
-  createdAt   DateTime @default(now()) // Oluşturulma tarihi
+  variants    Variant[] // İlişki
+  images      ProductImage[] // Çoklu resim ilişkisi
+}
+
+// Varyant Modeli (Beden/Numara ve Stok)
+model Variant {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String  // "S", "M", "42" vb.
+  stock     Int     @default(1) // Stok adedi
+}
+
+// Ürün Resimleri Modeli (Yeni)
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
 }

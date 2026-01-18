@@ -1,0 +1,88 @@
+.product-image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.product-image {
+    /* Maintained from App.css but scoped */
+    width: 100%;
+    height: 150px;
+    object-fit: contain;
+    background-color: #fff;
+    padding: 10px;
+    transition: opacity 0.3s ease;
+}
+
+/* Slider Controls */
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.75);
+    /* Light glassmorphism */
+    backdrop-filter: blur(4px);
+    color: #333;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Subtle border */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    user-select: none;
+    z-index: 10;
+    padding: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider-btn:hover {
+    background-color: rgba(255, 255, 255, 0.95);
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.slider-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: #333;
+}
+
+.slider-btn.prev {
+    left: 8px;
+    /* Slightly closer to edge */
+}
+
+.slider-btn.next {
+    right: 8px;
+    /* Slightly closer to edge */
+}
+
+.slider-dots {
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    z-index: 10;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dot.active {
+    background-color: #3b82f6;
+}
+
+/* Inherit other styles from App.css or define here if scoped */
+/* Since we are importing this in ProductCard, it's good to be specific or rely on global App.css classes */

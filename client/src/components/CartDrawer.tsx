@@ -1,23 +1,17 @@
 import React, { useEffect } from 'react';
 import './Cart.css';
 
-interface CartItem {
-    cartId: string; // Unique ID for cart item (needed for same product different size)
-    productName: string;
-    price: number;
-    imageUrl: string;
-    size: string;
-    quantity: number;
-}
+import type { CartItem } from '../types';
 
 interface CartDrawerProps {
     isOpen: boolean;
     onClose: () => void;
     cartItems: CartItem[];
     onRemove: (cartId: string) => void;
+    onUpdateQuantity: (cartId: string, delta: number) => void;
 }
 
-const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, cartItems, onRemove }) => {
+const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, cartItems, onRemove, onUpdateQuantity }) => {
 
     // Close on Escape key
     useEffect(() => {
@@ -59,7 +53,24 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, cartItems, onR
                                     <div className="cart-item-meta">
                                         <span className="cart-item-size">{item.size}</span>
                                         <span className="cart-item-price">{item.price} TL</span>
-                                        <span>x {item.quantity}</span>
+                                    </div>
+
+                                    <div className="quantity-controls">
+                                        <button
+                                            className="qty-btn"
+                                            onClick={() => onUpdateQuantity(item.cartId, -1)}
+                                            disabled={item.quantity <= 1}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                        </button>
+                                        <span className="qty-display">{item.quantity}</span>
+                                        <button
+                                            className="qty-btn"
+                                            onClick={() => onUpdateQuantity(item.cartId, 1)}
+                                            disabled={item.quantity >= item.maxStock}
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                        </button>
                                     </div>
                                 </div>
                                 <button
