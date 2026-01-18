@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import './Cart.css';
+import './CartDrawer.css';
 
-import type { CartItem } from '../types';
+import type { CartItem } from '../../../types';
 
 interface CartDrawerProps {
     isOpen: boolean;
