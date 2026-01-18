@@ -7,7 +7,7 @@
     flex-direction: column;
     gap: 10px;
     pointer-events: none;
-    /* Allow clicking through the container */
+    
 }
 
 .toast {
@@ -22,22 +22,22 @@
     min-width: 250px;
     animation: slideIn 0.3s ease-out forwards;
     pointer-events: auto;
-    /* Enable clicks on the toast itself */
+    
 }
 
 .toast.success {
     background-color: #4caf50;
-    /* Green */
+    
 }
 
 .toast.error {
     background-color: #f44336;
-    /* Red */
+    
 }
 
 .toast.info {
     background-color: #2196f3;
-    /* Blue */
+    
 }
 
 .toast-message {

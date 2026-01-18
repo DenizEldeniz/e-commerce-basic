@@ -5,7 +5,7 @@
 }
 
 .product-image {
-    /* Maintained from App.css but scoped */
+    
     width: 100%;
     height: 150px;
     object-fit: contain;
@@ -14,17 +14,16 @@
     transition: opacity 0.3s ease;
 }
 
-/* Slider Controls */
 .slider-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     background-color: rgba(255, 255, 255, 0.75);
-    /* Light glassmorphism */
+    
     backdrop-filter: blur(4px);
     color: #333;
     border: 1px solid rgba(0, 0, 0, 0.05);
-    /* Subtle border */
+    
     width: 32px;
     height: 32px;
     display: flex;
@@ -53,12 +52,12 @@
 
 .slider-btn.prev {
     left: 8px;
-    /* Slightly closer to edge */
+    
 }
 
 .slider-btn.next {
     right: 8px;
-    /* Slightly closer to edge */
+    
 }
 
 .slider-dots {
@@ -83,6 +82,3 @@
 .dot.active {
     background-color: #3b82f6;
 }
-
-/* Inherit other styles from App.css or define here if scoped */
-/* Since we are importing this in ProductCard, it's good to be specific or rely on global App.css classes */
