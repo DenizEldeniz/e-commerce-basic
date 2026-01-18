@@ -10,7 +10,6 @@ export class ProductValidator {
     static validateProductInput(data: ProductInput): { valid: boolean; error?: string; details?: string } {
         const mainImage = data.imageUrl || (data.images && data.images.length > 0 ? data.images[0] : null);
 
-        // Required fields
         if (!data.name || data.basePrice === undefined || !data.description || !mainImage || !data.category) {
             return {
                 valid: false,
@@ -19,7 +18,6 @@ export class ProductValidator {
             };
         }
 
-        // Category validation
         if (!VALID_CATEGORIES.includes(data.category as any)) {
             return {
                 valid: false,
@@ -28,7 +26,6 @@ export class ProductValidator {
             };
         }
 
-        // Price validation
         const priceNum = parseFloat(String(data.basePrice));
         if (isNaN(priceNum) || priceNum <= 0) {
             return {
@@ -38,7 +35,6 @@ export class ProductValidator {
             };
         }
 
-        // Variants validation
         if (!data.variants || !Array.isArray(data.variants) || data.variants.length === 0) {
             return {
                 valid: false,
@@ -47,7 +43,6 @@ export class ProductValidator {
             };
         }
 
-        // Variant details validation
         for (const variant of data.variants) {
             if (data.category === 'shoes') {
                 if (isNaN(Number(variant.size))) {

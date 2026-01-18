@@ -28,11 +28,9 @@ function App() {
     filter: true,
   });
 
-  // Custom hooks
   const { products, loading } = useProducts(selectedCategory);
   const { cart, addToCart, removeFromCart, updateQuantity, getTotalItems } = useCart();
 
-  // Fetch categories on mount
   useEffect(() => {
     apiService
       .getCategories()
@@ -40,13 +38,11 @@ function App() {
       .catch((err) => console.error('Error loading categories:', err));
   }, []);
 
-  // Filter products by stock availability
   const filteredProducts = useMemo(() => {
     if (!showInStockOnly) return products;
     return products.filter((p) => p.variants && p.variants.some((v) => v.stock > 0));
   }, [products, showInStockOnly]);
 
-  // Sort products
   const sortedProducts = useMemo(() => {
     const result = [...filteredProducts];
 
@@ -64,12 +60,10 @@ function App() {
     }
   }, [filteredProducts, sortOption]);
 
-  // Show toast notification
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ message, show: true, type });
   }, []);
 
-  // Toggle sidebar sections
   const toggleSection = useCallback((section: 'categories' | 'sort' | 'filter') => {
     setOpenSections((prev) => ({
       ...prev,
@@ -77,7 +71,6 @@ function App() {
     }));
   }, []);
 
-  // Handle size selection
   const handleSizeSelect = useCallback((productId: number, size: string) => {
     setSelectedSizes((prev) => {
       if (prev[productId] === size) {
@@ -89,7 +82,6 @@ function App() {
     });
   }, []);
 
-  // Handle add to cart
   const handleAddToCart = useCallback((product: Product) => {
     const selectedSize = selectedSizes[product.id];
     const result = addToCart(product, selectedSize);
@@ -97,7 +89,6 @@ function App() {
     showToast(result.message, result.success ? 'success' : 'error');
 
     if (result.success) {
-      // Clear selected size after successful add
       setSelectedSizes((prev) => {
         const newState = { ...prev };
         delete newState[product.id];
@@ -106,7 +97,6 @@ function App() {
     }
   }, [selectedSizes, addToCart, showToast]);
 
-  // Handle cart quantity update
   const handleUpdateQuantity = useCallback((cartId: string, delta: number) => {
     const result = updateQuantity(cartId, delta, products);
     if (!result.success) {

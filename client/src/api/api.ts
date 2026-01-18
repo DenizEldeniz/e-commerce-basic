@@ -38,7 +38,6 @@ class ApiService {
         return response.json();
     }
 
-    // Product endpoints
     async getProducts(category?: string) {
         const endpoint = category ? `/products?category=${category}` : '/products';
         return this.get(endpoint);
@@ -52,7 +51,6 @@ class ApiService {
         return this.post('/products', data);
     }
 
-    // Category endpoints
     async getCategories() {
         return this.get<string[]>('/categories');
     }

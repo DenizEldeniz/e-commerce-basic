@@ -65,7 +65,6 @@ export class ProductController {
         try {
             const productData: ProductInput = req.body;
 
-            // Validate input
             const validation = ProductValidator.validateProductInput(productData);
             if (!validation.valid) {
                 return res.status(400).json({
@@ -74,7 +73,6 @@ export class ProductController {
                 } as ApiError);
             }
 
-            // Create product
             const newProduct = await productService.createProduct(productData);
             res.status(201).json(newProduct);
         } catch (error) {
