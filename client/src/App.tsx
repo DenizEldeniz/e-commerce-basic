@@ -107,11 +107,11 @@ function App() {
   return (
     <div className="container">
       {/* Header */}
-      <header className="app-header">
-        <div className="header-inner">
-          <a href="/" className="logo-link">
-            <h1 className="logo-text">Eldeniz's</h1>
-          </a>
+      <header className="header">
+        <div className="header-content">
+          <h1 className="header-title" onClick={() => window.location.reload()}>
+            <i className="bi bi-shop"></i> Eldeniz's
+          </h1>
           <CartIcon itemCount={getTotalItems()} onClick={() => setIsCartOpen(true)} />
         </div>
       </header>
