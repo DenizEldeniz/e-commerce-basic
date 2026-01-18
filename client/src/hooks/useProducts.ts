@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import apiService from '../services/api';
+import apiService from '../api/api';
 import type { Product } from '../types';
 
 interface UseProductsReturn {

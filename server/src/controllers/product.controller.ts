@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import productService from '../services/product.service';
-import { ProductValidator } from '../utils/validators';
+import { ProductValidator } from '../validators/validators';
 import { ProductInput, ApiError, VALID_CATEGORIES } from '../types';
 
 /**

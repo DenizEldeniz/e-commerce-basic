@@ -7,7 +7,7 @@ import Footer from './components/common/Footer';
 import ProductCard from './components/product/ProductCard';
 import { useProducts } from './hooks/useProducts';
 import { useCart } from './hooks/useCart';
-import apiService from './services/api';
+import apiService from './api/api';
 import type { Product, ToastConfig } from './types';
 
 function App() {
