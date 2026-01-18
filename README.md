@@ -17,9 +17,7 @@ A modern, full-stack e-commerce application built with React, TypeScript, Expres
 
 ### Frontend
 - **React 18** with TypeScript
-- **Vite** for fast development and building
-- **Custom Hooks** for state management
-- **CSS3** with modern styling and animations
+- **CSS3**
 
 ### Backend
 - **Express.js** with TypeScript
@@ -31,7 +29,7 @@ A modern, full-stack e-commerce application built with React, TypeScript, Expres
 ## 📋 Prerequisites
 
 - Node.js (v16 or higher)
-- npm or yarn
+- npm
 
 ## 🔧 Installation
 
@@ -46,9 +44,6 @@ cd e-commerce-basic
 \`\`\`bash
 cd server
 npm install
-
-# Copy environment variables
-cp .env.example .env
 
 # Generate Prisma Client
 npx prisma generate
@@ -123,49 +118,6 @@ POST /products
 }
 \`\`\`
 
-## 🗂️ Project Structure
-
-\`\`\`
-e-commerce-basic/
-├── client/                 # Frontend React application
-│   ├── src/
-│   │   ├── components/    # Reusable React components
-│   │   ├── hooks/         # Custom React hooks
-│   │   ├── types.ts       # TypeScript type definitions
-│   │   ├── App.tsx        # Main application component
-│   │   └── App.css        # Global styles
-│   └── package.json
-│
-├── server/                # Backend Express application
-│   ├── src/
-│   │   ├── config/       # Configuration files (Swagger)
-│   │   ├── types.ts      # TypeScript type definitions
-│   │   └── index.ts      # Main server file
-│   ├── prisma/
-│   │   └── schema.prisma # Database schema
-│   └── package.json
-│
-└── README.md
-\`\`\`
-
-## 🎨 Key Features Explained
-
-### Product Variants
-Each product can have multiple variants (sizes) with individual stock tracking:
-- **Shoes**: Numeric sizes (e.g., 40, 41, 42)
-- **Clothing**: Standard sizes (XS, S, M, L, XL)
-
-### Shopping Cart
-- Add products with selected size
-- Update quantities (with stock validation)
-- Remove items
-- Visual stock limit indicators
-
-### Image Management
-- Multiple images per product
-- Carousel/slider navigation
-- Fallback for missing images
-
 ## 🔒 Environment Variables
 
 ### Backend (.env)
@@ -175,52 +127,6 @@ PORT=3000
 NODE_ENV=development
 \`\`\`
 
-## 🧪 Database Schema
-
-\`\`\`prisma
-model Product {
-  id          Int            @id @default(autoincrement())
-  name        String
-  basePrice   Float
-  description String
-  imageUrl    String
-  category    String
-  brand       String?
-  createdAt   DateTime       @default(now())
-  variants    Variant[]
-  images      ProductImage[]
-}
-
-model Variant {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  size      String
-  stock     Int
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-
-model ProductImage {
-  id        Int     @id @default(autoincrement())
-  productId Int
-  url       String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-\`\`\`
-
-## 🚧 Development
-
-### Code Quality
-- TypeScript for type safety
-- ESLint for code linting
-- Consistent naming conventions
-- JSDoc comments for documentation
-
-### Best Practices
-- Custom hooks for reusable logic
-- Proper error handling
-- Input validation
-- Responsive design
-- Accessibility considerations
 
 ## 📝 License
 
@@ -231,8 +137,3 @@ This project is open source and available under the [MIT License](LICENSE).
 **Deniz Eldeniz**
 - GitHub: [@DenizEldeniz](https://github.com/DenizEldeniz)
 
-## 🙏 Acknowledgments
-
-- Built as a technical interview project
-- Demonstrates full-stack development skills
-- Showcases modern web development practices
