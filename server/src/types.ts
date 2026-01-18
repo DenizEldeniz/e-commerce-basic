@@ -1,7 +1,3 @@
-/**
- * Shared TypeScript types and interfaces for the E-Commerce API
- */
-
 export interface VariantInput {
     size: string;
     stock?: number;

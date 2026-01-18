@@ -1,7 +1,3 @@
-/**
- * Swagger/OpenAPI configuration for API documentation
- */
-
 export const swaggerOptions = {
     definition: {
         openapi: '3.0.0',

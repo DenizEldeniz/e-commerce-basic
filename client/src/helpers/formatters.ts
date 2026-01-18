@@ -1,6 +1,3 @@
-/**
- * Format price in Turkish Lira
- */
 export const formatPrice = (price: number): string => {
     return `${price.toFixed(2)} TL`;
 };

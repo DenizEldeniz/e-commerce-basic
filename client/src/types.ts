@@ -1,8 +1,4 @@
 /**
- * TypeScript type definitions for the E-Commerce application
- */
-
-/**
  * Product variant (size and stock information)
  */
 export interface Variant {
