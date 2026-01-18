@@ -383,7 +383,6 @@ function App() {
                   key={product.id}
                   product={product}
                   selectedSize={selectedSizes[product.id]}
-                  showInStockOnly={showInStockOnly}
                   onSizeSelect={handleSizeSelect}
                   onAddToCart={handleAddToCart}
                 />

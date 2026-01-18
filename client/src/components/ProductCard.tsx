@@ -6,12 +6,11 @@ import type { Product } from '../types';
 interface ProductCardProps {
     product: Product;
     selectedSize?: string;
-    showInStockOnly: boolean;
     onSizeSelect: (productId: number, size: string) => void;
     onAddToCart: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showInStockOnly, onSizeSelect, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, onSizeSelect, onAddToCart }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const variants = product.variants || [];
