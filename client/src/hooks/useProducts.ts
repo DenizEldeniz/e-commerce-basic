@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import apiService from '../services/api';
 import type { Product } from '../types';
 
 interface UseProductsReturn {
@@ -23,18 +24,8 @@ export const useProducts = (selectedCategory?: string): UseProductsReturn => {
         setError(null);
 
         try {
-            let url = 'http://localhost:3000/products';
-            if (selectedCategory) {
-                url += `?category=${selectedCategory}`;
-            }
-
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Failed to fetch products');
-            }
-
-            const data = await response.json();
-            setProducts(data);
+            const data = await apiService.getProducts(selectedCategory);
+            setProducts(data as Product[]);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred');
             console.error('Error fetching products:', err);

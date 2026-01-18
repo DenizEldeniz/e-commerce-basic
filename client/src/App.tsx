@@ -1,12 +1,13 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import './App.css';
-import Toast from './components/Toast';
-import CartIcon from './components/CartIcon';
-import CartDrawer from './components/CartDrawer';
-import Footer from './components/Footer';
-import ProductCard from './components/ProductCard';
+import Toast from './components/common/Toast';
+import CartIcon from './components/common/CartIcon';
+import CartDrawer from './components/cart/CartDrawer';
+import Footer from './components/common/Footer';
+import ProductCard from './components/product/ProductCard';
 import { useProducts } from './hooks/useProducts';
 import { useCart } from './hooks/useCart';
+import apiService from './services/api';
 import type { Product, ToastConfig } from './types';
 
 function App() {
@@ -32,12 +33,12 @@ function App() {
   const { cart, addToCart, removeFromCart, updateQuantity, getTotalItems } = useCart();
 
   // Fetch categories on mount
-  useState(() => {
-    fetch('http://localhost:3000/categories')
-      .then((res) => res.json())
+  useEffect(() => {
+    apiService
+      .getCategories()
       .then((data) => setCategories(data))
       .catch((err) => console.error('Error loading categories:', err));
-  });
+  }, []);
 
   // Filter products by stock availability
   const filteredProducts = useMemo(() => {
