@@ -12,15 +12,13 @@ const prisma = new PrismaClient({
 app.use(cors());
 app.use(express.json());
 
-// --- SWAGGER AYARLARI (Objeye çevirdik, hata riski bitti) ---
-// --- SWAGGER AYARLARI ---
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'E-Ticaret API',
+            title: 'E-Commerce API',
             version: '2.0.0',
-            description: 'React Frontend için Backend API (Yeni Mimari)',
+            description: 'Backend API for React Frontend (New Architecture)',
         },
         servers: [
             { url: 'http://localhost:3000' },
@@ -28,18 +26,18 @@ const swaggerOptions = {
         paths: {
             '/products': {
                 get: {
-                    summary: 'Tüm ürünleri (varyantlarıyla) getir',
+                    summary: 'Get all products (with variants)',
                     parameters: [
                         {
                             in: 'query',
                             name: 'category',
                             schema: { type: 'string' },
-                            description: 'Kategoriye göre filtrele (ayakkabi | kiyafet)',
+                            description: 'Filter by category (shoes | clothing)',
                         },
                     ],
                     responses: {
                         200: {
-                            description: 'Başarılı ürün listesi',
+                            description: 'Successful product list',
                             content: {
                                 'application/json': {
                                     schema: {
@@ -52,7 +50,7 @@ const swaggerOptions = {
                     },
                 },
                 post: {
-                    summary: 'Yeni ürün ve varyantlarını ekle',
+                    summary: 'Add new product and variants',
                     requestBody: {
                         required: true,
                         content: {
@@ -62,29 +60,29 @@ const swaggerOptions = {
                         },
                     },
                     responses: {
-                        200: { description: 'Ürün başarıyla eklendi' },
-                        400: { description: 'Validation Hatası' },
+                        200: { description: 'Product successfully added' },
+                        400: { description: 'Validation Error' },
                     },
                 },
             },
             '/products/{id}': {
                 get: {
-                    summary: 'Tek bir ürün detayı',
+                    summary: 'Get single product details',
                     parameters: [
                         {
                             in: 'path',
                             name: 'id',
                             required: true,
                             schema: { type: 'integer' },
-                            description: 'Ürün ID',
+                            description: 'Product ID',
                         },
                     ],
                     responses: {
                         200: {
-                            description: 'Ürün detayı',
+                            description: 'Product details',
                             content: { 'application/json': { schema: { $ref: '#/components/schemas/Product' } } }
                         },
-                        404: { description: 'Ürün bulunamadı' },
+                        404: { description: 'Product not found' },
                     },
                 },
             },
@@ -132,9 +130,9 @@ const swaggerOptions = {
                     properties: {
                         name: { type: 'string' },
                         basePrice: { type: 'number' },
-                        imageUrl: { type: 'string', description: 'Ana resim (Opsiyonel, images[0] yoksa)' },
-                        images: { type: 'array', items: { type: 'string' }, description: 'Resim URLleri listesi' },
-                        category: { type: 'string', enum: ['ayakkabi', 'kiyafet'] },
+                        imageUrl: { type: 'string', description: 'Main image (Optional, if images[0] exists)' },
+                        images: { type: 'array', items: { type: 'string' }, description: 'List of image URLs' },
+                        category: { type: 'string', enum: ['shoes', 'clothing'] },
                         brand: { type: 'string' },
                         description: { type: 'string' },
                         variants: {
@@ -161,22 +159,20 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // --- API KODLARI ---
 
-// 1. Tüm Ürünleri Getir
 app.get('/products', async (req, res) => {
     const { category } = req.query;
     try {
         const products = await prisma.product.findMany({
             where: category ? { category: String(category) } : {},
-            include: { variants: true, images: true }, // Varyantları ve Resimleri dahil et
+            include: { variants: true, images: true },
         });
         res.json(products);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Ürünler çekilemedi' });
+        res.status(500).json({ error: 'Failed to fetch products' });
     }
 });
 
-// 2. Tek Ürün Getir
 app.get('/products/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -184,65 +180,53 @@ app.get('/products/:id', async (req, res) => {
             where: { id: Number(id) },
             include: { variants: true, images: true },
         });
-        if (!product) return res.status(404).json({ error: 'Ürün bulunamadı' });
+        if (!product) return res.status(404).json({ error: 'Product not found' });
         res.json(product);
     } catch (error) {
-        res.status(500).json({ error: 'Hata oluştu' });
+        res.status(500).json({ error: 'An error occurred' });
     }
 });
 
-// 3. Ürün Ekle (Transaction ile Product + Variants + Images)
 app.post('/products', async (req, res) => {
     try {
         const { name, basePrice, description, imageUrl, images, category, brand, variants } = req.body;
 
-        // 1. Temel Validation (imageUrl zorunluluğu kalktı, images[] varsa oradan alırız)
-        // Eğer images[] varsa ilkini imageUrl yaparız.
         const mainImage = imageUrl || (images && images.length > 0 ? images[0] : null);
 
         if (!name || basePrice === undefined || !description || !mainImage || !category) {
-            return res.status(400).json({ error: 'Zorunlu alanlar eksik (İsim, Fiyat, Açıklama, Resim, Kategori).' });
+            return res.status(400).json({ error: 'Missing required fields (Name, Price, Description, Image, Category).' });
         }
 
-        // 2. Kategori Validation
-        if (!['ayakkabi', 'kiyafet'].includes(category)) {
-            return res.status(400).json({ error: 'Geçersiz kategori. Sadece "ayakkabi" veya "kiyafet" olabilir.' });
+        if (!['shoes', 'clothing'].includes(category)) {
+            return res.status(400).json({ error: 'Invalid category. Must be "shoes" or "clothing".' });
         }
 
-        // 3. Fiyat Validation
         const priceNum = parseFloat(basePrice);
         if (isNaN(priceNum) || priceNum <= 0) {
-            return res.status(400).json({ error: 'Fiyat 0 dan büyük olmalıdır.' });
+            return res.status(400).json({ error: 'Price must be greater than 0.' });
         }
 
-        // 4. Varyant Kontrolü
         if (!variants || !Array.isArray(variants) || variants.length === 0) {
-            return res.status(400).json({ error: 'En az bir varyant (beden/numara) eklemelisiniz.' });
+            return res.status(400).json({ error: 'You must add at least one variant (size/number).' });
         }
-
-        // 5. Varyant detay validation
-        const validSizesKiyafet = ['XS', 'S', 'M', 'L', 'XL'];
+        const validSizesClothing = ['XS', 'S', 'M', 'L', 'XL'];
 
         for (const v of variants) {
-            if (category === 'ayakkabi') {
-                // Sayısal mi kontrol et
+            if (category === 'shoes') {
                 if (isNaN(Number(v.size))) {
-                    return res.status(400).json({ error: `Ayakkabı numarası sayısal olmalıdır. (Hatalı: ${v.size})` });
+                    return res.status(400).json({ error: `Shoe size must be numeric. (Invalid: ${v.size})` });
                 }
-            } else if (category === 'kiyafet') {
-                // İzin verilen stringler mi
-                if (!validSizesKiyafet.includes(v.size)) {
-                    return res.status(400).json({ error: `Kıyafet bedeni şu değerlerden biri olmalıdır: ${validSizesKiyafet.join(', ')}. (Hatalı: ${v.size})` });
+            } else if (category === 'clothing') {
+                if (!validSizesClothing.includes(v.size)) {
+                    return res.status(400).json({ error: `Clothing size must be one of: ${validSizesClothing.join(', ')}. (Invalid: ${v.size})` });
                 }
             }
 
-            // Stok Validation
             if (v.stock !== undefined && (typeof v.stock !== 'number' || v.stock < 0)) {
-                return res.status(400).json({ error: `Stok miktarı 0'dan küçük olamaz. (Hatalı Varyant: ${v.size} - Stok: ${v.stock})` });
+                return res.status(400).json({ error: `Stock amount cannot be less than 0. (Invalid Variant: ${v.size} - Stock: ${v.stock})` });
             }
         }
 
-        // 6. DB Kayıt (Product + Variants + Images nested create)
         const newProduct = await prisma.product.create({
             data: {
                 name,
@@ -250,7 +234,7 @@ app.post('/products', async (req, res) => {
                 description,
                 imageUrl: mainImage,
                 category,
-                brand: brand || "Genel",
+                brand: brand || "General",
                 variants: {
                     create: variants.map((v: any) => ({
                         size: String(v.size),
@@ -267,23 +251,19 @@ app.post('/products', async (req, res) => {
         res.json(newProduct);
 
     } catch (error) {
-        console.error("Ürün ekleme hatası:", error);
-        res.status(500).json({ error: 'Ürün eklenirken sunucu hatası oluştu.' });
+        console.error("Product creation error:", error);
+        res.status(500).json({ error: 'Server error while creating product.' });
     }
 });
 
-// 4. Kategorileri Getir (Sabit ya da DB'den distinct)
 app.get('/categories', async (req, res) => {
-    // Kurallara göre sadece iki kategori var, bunları statik de dönebiliriz ama 
-    // DB'de olanları dönmek istersek yine distinct kullanabiliriz.
-    // Ancak kural "Sadece iki kategori olacak" dediği için statik göndermek daha güvenli ve hızlı.
-    res.json(['ayakkabi', 'kiyafet']);
+    res.json(['shoes', 'clothing']);
 });
 
 
 
 const PORT = 3000;
 app.listen(PORT, () => {
-    console.log(`Sunucu: http://localhost:${PORT}`);
+    console.log(`Server: http://localhost:${PORT}`);
     console.log(`Swagger: http://localhost:${PORT}/api-docs`);
 });

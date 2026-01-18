@@ -31,7 +31,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showIn
         setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    // Auto-select first image if out of bounds (safety)
     const displayImage = images[currentImageIndex] || images[0];
 
     return (
@@ -44,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showIn
                     onError={(e) => {
                         const target = e.target as HTMLImageElement;
                         target.onerror = null;
-                        target.src = "https://placehold.co/600x400?text=Resim+Yok";
+                        target.src = "https://placehold.co/600x400?text=No+Image";
                     }}
                 />
 
@@ -77,13 +76,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showIn
             </div>
 
             <div className="product-info">
-                <div className="product-category">{product.brand || "Genel"}</div>
+                <div className="product-category">{product.brand || "General"}</div>
                 <h3>{product.name}</h3>
                 <p className="product-description">
                     {product.description}
                 </p>
 
-                {/* --- SIZE BADGES --- */}
+
+
                 <div className="size-badges">
                     {variants.length > 0 ? variants.map(variant => {
                         const isSelected = selectedSize === variant.size;
@@ -99,14 +99,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showIn
                                 {variant.size}
                                 {isOutOfStock && <div className="cross-line"></div>}
 
-                                {/* Hover Tooltip */}
                                 <div className="hover-stock">
-                                    {variant.stock} adet
+                                    {variant.stock} left
                                 </div>
                             </div>
                         );
                     }) : (
-                        <span className="no-stock-alert">Stok Yok</span>
+                        <span className="no-stock-alert">Out of Stock</span>
                     )}
                 </div>
 
@@ -116,9 +115,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showIn
 
                 <div className="card-actions">
                     {variants.every(v => v.stock === 0) ? (
-                        <button className="out-stock-btn" disabled>Tükendi</button>
+                        <button className="out-stock-btn" disabled>Sold Out</button>
                     ) : (
-                        <button className="add-btn" onClick={() => onAddToCart(product)} aria-label="Sepete Ekle">
+                        <button className="add-btn" onClick={() => onAddToCart(product)} aria-label="Add to Cart">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                                 <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -128,7 +127,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, selectedSize, showIn
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

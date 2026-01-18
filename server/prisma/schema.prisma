@@ -16,8 +16,8 @@ model Product {
   name        String
   basePrice   Float     // price -> basePrice olarak değişti
   imageUrl    String
-  category    String    // 'ayakkabi' | 'kiyafet'
-  brand       String    @default("Genel")
+  category    String    // 'shoes' | 'clothing'
+  brand       String    @default("General")
   description String?
   createdAt   DateTime  @default(now())
   

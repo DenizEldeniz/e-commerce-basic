@@ -16,7 +16,7 @@ export interface Product {
     name: string;
     basePrice: number;
     description: string;
-    imageUrl: string; // fallback main image
+    imageUrl: string;
     images?: ProductImage[];
     category: string;
     brand?: string;
@@ -25,7 +25,7 @@ export interface Product {
 }
 
 export interface CartItem {
-    cartId: string; // Unique ID (productID + size + timestamp)
+    cartId: string;
     productName: string;
     price: number;
     imageUrl: string;

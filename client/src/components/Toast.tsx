@@ -14,7 +14,7 @@ const Toast: React.FC<ToastProps> = ({ message, type = 'success', duration = 300
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsHiding(true);
-            // Wait for animation to finish before calling onClose
+            setIsHiding(true);
             setTimeout(onClose, 300);
         }, duration);
 

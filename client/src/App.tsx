@@ -11,31 +11,24 @@ function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Cart State
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  // Toast State
   const [toast, setToast] = useState<{ message: string; show: boolean; type?: 'success' | 'error' | 'info' }>({
     message: '',
     show: false,
     type: 'success'
   });
 
-  // Selected Sizes State: { [productId]: 'S' | 'M' | '42' }
   const [selectedSizes, setSelectedSizes] = useState<Record<number, string>>({});
 
-  // Category State
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
 
-  // Sort State
   const [sortOption, setSortOption] = useState<string>('');
 
-  // Filter State
   const [showInStockOnly, setShowInStockOnly] = useState(false);
 
-  // Collapsible Sidebar State
   const [openSections, setOpenSections] = useState({
     categories: true,
     sort: true,
@@ -50,15 +43,13 @@ function App() {
   };
 
 
-  // 1. Fetch Categories
   useEffect(() => {
     fetch('http://localhost:3000/categories')
       .then((res) => res.json())
       .then((data) => setCategories(data))
-      .catch((err) => console.error("Kategoriler yüklenirken hata:", err));
+      .catch((err) => console.error("Error loading categories:", err));
   }, []);
 
-  // 2. Fetch Products
   useEffect(() => {
     setLoading(true);
     let url = 'http://localhost:3000/products';
@@ -73,14 +64,13 @@ function App() {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Hata:", err);
+        console.error("Error:", err);
         setLoading(false);
       });
   }, [selectedCategory]);
 
 
 
-  // 3. Client-side filters
   const filteredProducts = useMemo(() => {
     let result = products;
 
@@ -91,7 +81,6 @@ function App() {
     return result;
   }, [products, showInStockOnly]);
 
-  // 4. Sort products
   const sortedProducts = useMemo(() => {
     const result = [...filteredProducts];
     if (sortOption === 'price-asc') {
@@ -125,12 +114,10 @@ function App() {
   const handleSizeSelect = (productId: number, size: string) => {
     setSelectedSizes(prev => {
       if (prev[productId] === size) {
-        // If already selected, deselect it (remove from state)
         const newState = { ...prev };
         delete newState[productId];
         return newState;
       }
-      // Otherwise select it
       return { ...prev, [productId]: size };
     });
   };
@@ -140,7 +127,7 @@ function App() {
 
     if (!selectedSize) {
       setToast({
-        message: 'Lütfen önce beden/numara seçiniz!',
+        message: 'Please select a size first!',
         show: true,
         type: 'error'
       });
@@ -150,13 +137,12 @@ function App() {
     const variant = product.variants.find(v => v.size === selectedSize);
     if (!variant) return;
 
-    // STOK KONTROLÜ (Client-side pre-check)
     const currentCartItem = cart.find(item => item.variantId === variant.id);
     const currentQty = currentCartItem ? currentCartItem.quantity : 0;
 
     if (currentQty + 1 > variant.stock) {
       setToast({
-        message: `Stok yetersiz! (Mevcut: ${variant.stock})`,
+        message: `Insufficient stock! (Available: ${variant.stock})`,
         show: true,
         type: 'error'
       });
@@ -167,7 +153,6 @@ function App() {
       const existingItemIndex = prev.findIndex(item => item.productName === product.name && item.size === selectedSize);
       if (existingItemIndex > -1) {
         const newCart = [...prev];
-        // Create a new object for the updated item to avoid mutating the original state reference
         newCart[existingItemIndex] = {
           ...newCart[existingItemIndex],
           quantity: newCart[existingItemIndex].quantity + 1
@@ -187,7 +172,6 @@ function App() {
       }
     });
 
-    // Clear selected size after adding to cart
     setSelectedSizes(prev => {
       const newState = { ...prev };
       delete newState[product.id];
@@ -195,11 +179,10 @@ function App() {
     });
 
     setToast({
-      message: 'Ürün sepete eklendi!',
+      message: 'Product added to cart!',
       show: true,
       type: 'success'
     });
-    // setIsCartOpen(true); // İsteğe bağlı, ekleyince açılmasın
   };
 
   const handleRemoveFromCart = (cartId: string) => {
@@ -215,21 +198,12 @@ function App() {
           // Minimum quantity check
           if (newQuantity < 1) return item;
 
-          // Stock validation (Client-side)
-          // We need to find the product variant stock. 
-          // Since we don't have the full product object here easily, 
-          // we might rely on what we have or accept a small risk of desync, 
-          // OR better: we look up the product in `products` list.
-          // Wait, we don't stored productId in CartItem? We assume Name is unique or we should use variantId.
-          // We stored variantId in CartItem! Perfect.
-
-          // Find the product that owns this variant
           const productOwner = products.find(p => p.variants.some(v => v.id === item.variantId));
           const variant = productOwner?.variants.find(v => v.id === item.variantId);
 
           if (variant && newQuantity > variant.stock) {
             setToast({
-              message: `Maksimum stok miktarına ulaştınız! (${variant.stock})`,
+              message: `Maximum stock limit reached! (${variant.stock})`,
               show: true,
               type: 'error'
             });
@@ -282,11 +256,10 @@ function App() {
       <div className="main-layout">
 
         {/* --- SIDEBAR --- */}
-        {/* --- SIDEBAR --- */}
         <aside className="sidebar">
           <div className="sidebar-section">
             <div className="sidebar-header" onClick={() => toggleSection('categories')}>
-              <h3 className="sidebar-title">Kategoriler</h3>
+              <h3 className="sidebar-title">Categories</h3>
               <span className={`chevron ${openSections.categories ? 'open' : ''}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </span>
@@ -297,7 +270,7 @@ function App() {
                   className={`category-item ${selectedCategory === '' ? 'active' : ''}`}
                   onClick={() => handleCategorySelect('')}
                 >
-                  Tümü
+                  All
                 </li>
                 {categories.map(cat => (
                   <li
@@ -314,7 +287,7 @@ function App() {
 
           <div className="sidebar-section">
             <div className="sidebar-header" onClick={() => toggleSection('sort')}>
-              <h3 className="sidebar-title">Sırala</h3>
+              <h3 className="sidebar-title">Sort</h3>
               <span className={`chevron ${openSections.sort ? 'open' : ''}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </span>
@@ -328,52 +301,51 @@ function App() {
                     checked={sortOption === ''}
                     onChange={() => handleSortSelect(null)}
                   />
-                  Varsayılan
+                  Default
                 </label>
                 <label className={`sort-option ${sortOption === 'price-asc' ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     name="sort"
                     checked={sortOption === 'price-asc'}
-                    onChange={() => handleSortSelect({ label: 'Artan Fiyat', value: 'price-asc' })}
+                    onChange={() => handleSortSelect({ label: 'Price Ascending', value: 'price-asc' })}
                   />
-                  En Düşük Fiyat
+                  Price: Low to High
                 </label>
                 <label className={`sort-option ${sortOption === 'price-desc' ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     name="sort"
                     checked={sortOption === 'price-desc'}
-                    onChange={() => handleSortSelect({ label: 'Azalan Fiyat', value: 'price-desc' })}
+                    onChange={() => handleSortSelect({ label: 'Price Descending', value: 'price-desc' })}
                   />
-                  En Yüksek Fiyat
+                  Price: High to Low
                 </label>
                 <label className={`sort-option ${sortOption === 'date-desc' ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     name="sort"
                     checked={sortOption === 'date-desc'}
-                    onChange={() => handleSortSelect({ label: 'En Yeniler', value: 'date-desc' })}
+                    onChange={() => handleSortSelect({ label: 'Newest', value: 'date-desc' })}
                   />
-                  En Yeniler
+                  Newest Arrivals
                 </label>
                 <label className={`sort-option ${sortOption === 'date-asc' ? 'selected' : ''}`}>
                   <input
                     type="radio"
                     name="sort"
                     checked={sortOption === 'date-asc'}
-                    onChange={() => handleSortSelect({ label: 'En Eskiler', value: 'date-asc' })}
+                    onChange={() => handleSortSelect({ label: 'Oldest', value: 'date-asc' })}
                   />
-                  En Eskiler
+                  Oldest
                 </label>
               </div>
             )}
           </div>
 
-          {/* FİLTRELER */}
           <div className="sidebar-section">
             <div className="sidebar-header" onClick={() => toggleSection('filter')}>
-              <h3 className="sidebar-title">Filtrele</h3>
+              <h3 className="sidebar-title">Filter</h3>
               <span className={`chevron ${openSections.filter ? 'open' : ''}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </span>
@@ -386,7 +358,7 @@ function App() {
                     checked={showInStockOnly}
                     onChange={(e) => setShowInStockOnly(e.target.checked)}
                   />
-                  Sadece Stoktakiler
+                  In Stock Only
                 </label>
               </div>
             )}
@@ -397,12 +369,12 @@ function App() {
         {/* --- CONTENT --- */}
         <main className="content">
           {loading ? (
-            <div className="loading">Yükleniyor...</div>
+            <div className="loading">Loading...</div>
           ) : (
             <div className="product-grid">
               {sortedProducts.length === 0 && (
                 <div className="empty-state">
-                  <p>Bu kategoride ürün bulunamadı{showInStockOnly ? ' (Stok filtresi aktif)' : ''}.</p>
+                  <p>No products found in this category{showInStockOnly ? ' (Stock filter active)' : ''}.</p>
                 </div>
               )}
 
