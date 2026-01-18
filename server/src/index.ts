@@ -1,232 +1,168 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
+import { swaggerOptions } from './config/swagger';
+import { ProductInput, VALID_CATEGORIES, VALID_CLOTHING_SIZES, ApiError } from './types';
 
 const app = express();
 const prisma = new PrismaClient({
-    log: ['query', 'info', 'warn', 'error'],
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
 });
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-const swaggerOptions = {
-    definition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'E-Commerce API',
-            version: '2.0.0',
-            description: 'Backend API for React Frontend (New Architecture)',
-        },
-        servers: [
-            { url: 'http://localhost:3000' },
-        ],
-        paths: {
-            '/products': {
-                get: {
-                    summary: 'Get all products (with variants)',
-                    parameters: [
-                        {
-                            in: 'query',
-                            name: 'category',
-                            schema: { type: 'string' },
-                            description: 'Filter by category (shoes | clothing)',
-                        },
-                    ],
-                    responses: {
-                        200: {
-                            description: 'Successful product list',
-                            content: {
-                                'application/json': {
-                                    schema: {
-                                        type: 'array',
-                                        items: { $ref: '#/components/schemas/Product' }
-                                    }
-                                }
-                            }
-                        },
-                    },
-                },
-                post: {
-                    summary: 'Add new product and variants',
-                    requestBody: {
-                        required: true,
-                        content: {
-                            'application/json': {
-                                schema: { $ref: '#/components/schemas/ProductInput' },
-                            },
-                        },
-                    },
-                    responses: {
-                        200: { description: 'Product successfully added' },
-                        400: { description: 'Validation Error' },
-                    },
-                },
-            },
-            '/products/{id}': {
-                get: {
-                    summary: 'Get single product details',
-                    parameters: [
-                        {
-                            in: 'path',
-                            name: 'id',
-                            required: true,
-                            schema: { type: 'integer' },
-                            description: 'Product ID',
-                        },
-                    ],
-                    responses: {
-                        200: {
-                            description: 'Product details',
-                            content: { 'application/json': { schema: { $ref: '#/components/schemas/Product' } } }
-                        },
-                        404: { description: 'Product not found' },
-                    },
-                },
-            },
-        },
-        components: {
-            schemas: {
-                Variant: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'integer' },
-                        size: { type: 'string' },
-                        stock: { type: 'integer' }
-
-                    }
-                },
-                Product: {
-                    type: 'object',
-                    properties: {
-                        id: { type: 'integer' },
-                        name: { type: 'string' },
-                        basePrice: { type: 'number' },
-                        description: { type: 'string' },
-                        imageUrl: { type: 'string' },
-                        category: { type: 'string' },
-                        brand: { type: 'string' },
-                        variants: {
-                            type: 'array',
-                            items: { $ref: '#/components/schemas/Variant' }
-                        },
-                        images: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                properties: {
-                                    id: { type: 'integer' },
-                                    url: { type: 'string' }
-                                }
-                            }
-                        }
-                    }
-                },
-                ProductInput: {
-                    type: 'object',
-                    required: ['name', 'basePrice', 'category', 'description', 'variants'],
-                    properties: {
-                        name: { type: 'string' },
-                        basePrice: { type: 'number' },
-                        imageUrl: { type: 'string', description: 'Main image (Optional, if images[0] exists)' },
-                        images: { type: 'array', items: { type: 'string' }, description: 'List of image URLs' },
-                        category: { type: 'string', enum: ['shoes', 'clothing'] },
-                        brand: { type: 'string' },
-                        description: { type: 'string' },
-                        variants: {
-                            type: 'array',
-                            items: {
-                                type: 'object',
-                                required: ['size'],
-                                properties: {
-                                    size: { type: 'string' },
-                                    stock: { type: 'integer' }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    apis: [],
-};
-
+// Swagger Documentation
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// --- API KODLARI ---
-
-app.get('/products', async (req, res) => {
+/**
+ * GET /products
+ * Retrieve all products, optionally filtered by category
+ */
+app.get('/products', async (req: Request, res: Response) => {
     const { category } = req.query;
+
     try {
         const products = await prisma.product.findMany({
             where: category ? { category: String(category) } : {},
-            include: { variants: true, images: true },
+            include: {
+                variants: true,
+                images: true
+            },
+            orderBy: { createdAt: 'desc' },
         });
+
         res.json(products);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to fetch products' });
+        console.error('Error fetching products:', error);
+        res.status(500).json({
+            error: 'Failed to fetch products'
+        } as ApiError);
     }
 });
 
-app.get('/products/:id', async (req, res) => {
+/**
+ * GET /products/:id
+ * Retrieve a single product by ID
+ */
+app.get('/products/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
+    const productId = parseInt(String(id), 10);
+
+    if (isNaN(productId)) {
+        return res.status(400).json({
+            error: 'Invalid product ID'
+        } as ApiError);
+    }
+
     try {
         const product = await prisma.product.findUnique({
-            where: { id: Number(id) },
-            include: { variants: true, images: true },
+            where: { id: productId },
+            include: {
+                variants: true,
+                images: true
+            },
         });
-        if (!product) return res.status(404).json({ error: 'Product not found' });
+
+        if (!product) {
+            return res.status(404).json({
+                error: 'Product not found'
+            } as ApiError);
+        }
+
         res.json(product);
     } catch (error) {
-        res.status(500).json({ error: 'An error occurred' });
+        console.error('Error fetching product:', error);
+        res.status(500).json({
+            error: 'An error occurred while fetching the product'
+        } as ApiError);
     }
 });
 
-app.post('/products', async (req, res) => {
+/**
+ * POST /products
+ * Create a new product with variants
+ */
+app.post('/products', async (req: Request, res: Response) => {
     try {
-        const { name, basePrice, description, imageUrl, images, category, brand, variants } = req.body;
+        const {
+            name,
+            basePrice,
+            description,
+            imageUrl,
+            images,
+            category,
+            brand,
+            variants
+        }: ProductInput = req.body;
 
+        // Determine main image
         const mainImage = imageUrl || (images && images.length > 0 ? images[0] : null);
 
+        // Validation: Required fields
         if (!name || basePrice === undefined || !description || !mainImage || !category) {
-            return res.status(400).json({ error: 'Missing required fields (Name, Price, Description, Image, Category).' });
+            return res.status(400).json({
+                error: 'Missing required fields',
+                details: 'Name, price, description, image, and category are required'
+            } as ApiError);
         }
 
-        if (!['shoes', 'clothing'].includes(category)) {
-            return res.status(400).json({ error: 'Invalid category. Must be "shoes" or "clothing".' });
+        // Validation: Category
+        if (!VALID_CATEGORIES.includes(category as any)) {
+            return res.status(400).json({
+                error: 'Invalid category',
+                details: `Category must be one of: ${VALID_CATEGORIES.join(', ')}`
+            } as ApiError);
         }
 
-        const priceNum = parseFloat(basePrice);
+        // Validation: Price
+        const priceNum = parseFloat(String(basePrice));
         if (isNaN(priceNum) || priceNum <= 0) {
-            return res.status(400).json({ error: 'Price must be greater than 0.' });
+            return res.status(400).json({
+                error: 'Invalid price',
+                details: 'Price must be a number greater than 0'
+            } as ApiError);
         }
 
+        // Validation: Variants
         if (!variants || !Array.isArray(variants) || variants.length === 0) {
-            return res.status(400).json({ error: 'You must add at least one variant (size/number).' });
+            return res.status(400).json({
+                error: 'Invalid variants',
+                details: 'At least one variant (size/stock) is required'
+            } as ApiError);
         }
-        const validSizesClothing = ['XS', 'S', 'M', 'L', 'XL'];
 
-        for (const v of variants) {
+        // Validation: Variant details
+        for (const variant of variants) {
             if (category === 'shoes') {
-                if (isNaN(Number(v.size))) {
-                    return res.status(400).json({ error: `Shoe size must be numeric. (Invalid: ${v.size})` });
+                if (isNaN(Number(variant.size))) {
+                    return res.status(400).json({
+                        error: 'Invalid shoe size',
+                        details: `Shoe sizes must be numeric. Invalid: ${variant.size}`
+                    } as ApiError);
                 }
             } else if (category === 'clothing') {
-                if (!validSizesClothing.includes(v.size)) {
-                    return res.status(400).json({ error: `Clothing size must be one of: ${validSizesClothing.join(', ')}. (Invalid: ${v.size})` });
+                if (!VALID_CLOTHING_SIZES.includes(variant.size as any)) {
+                    return res.status(400).json({
+                        error: 'Invalid clothing size',
+                        details: `Clothing sizes must be one of: ${VALID_CLOTHING_SIZES.join(', ')}. Invalid: ${variant.size}`
+                    } as ApiError);
                 }
             }
 
-            if (v.stock !== undefined && (typeof v.stock !== 'number' || v.stock < 0)) {
-                return res.status(400).json({ error: `Stock amount cannot be less than 0. (Invalid Variant: ${v.size} - Stock: ${v.stock})` });
+            if (variant.stock !== undefined && (typeof variant.stock !== 'number' || variant.stock < 0)) {
+                return res.status(400).json({
+                    error: 'Invalid stock quantity',
+                    details: `Stock must be a non-negative number. Invalid variant: ${variant.size}`
+                } as ApiError);
             }
         }
 
+        // Create product with variants and images
         const newProduct = await prisma.product.create({
             data: {
                 name,
@@ -234,36 +170,50 @@ app.post('/products', async (req, res) => {
                 description,
                 imageUrl: mainImage,
                 category,
-                brand: brand || "General",
+                brand: brand || 'General',
                 variants: {
-                    create: variants.map((v: any) => ({
+                    create: variants.map((v) => ({
                         size: String(v.size),
-                        stock: v.stock !== undefined ? Number(v.stock) : 1
-                    }))
+                        stock: v.stock !== undefined ? Number(v.stock) : 1,
+                    })),
                 },
                 images: {
-                    create: (images || [mainImage]).map((url: string) => ({ url }))
-                }
+                    create: (images || [mainImage]).map((url) => ({ url })),
+                },
             },
-            include: { variants: true, images: true }
+            include: {
+                variants: true,
+                images: true
+            },
         });
 
-        res.json(newProduct);
-
+        res.status(201).json(newProduct);
     } catch (error) {
-        console.error("Product creation error:", error);
-        res.status(500).json({ error: 'Server error while creating product.' });
+        console.error('Error creating product:', error);
+        res.status(500).json({
+            error: 'Server error while creating product',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        } as ApiError);
     }
 });
 
-app.get('/categories', async (req, res) => {
-    res.json(['shoes', 'clothing']);
+/**
+ * GET /categories
+ * Retrieve all available product categories
+ */
+app.get('/categories', (_req: Request, res: Response) => {
+    res.json([...VALID_CATEGORIES]);
 });
 
-
-
-const PORT = 3000;
+// Start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server: http://localhost:${PORT}`);
-    console.log(`Swagger: http://localhost:${PORT}/api-docs`);
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    await prisma.$disconnect();
+    process.exit(0);
 });
