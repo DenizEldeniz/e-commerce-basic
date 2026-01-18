@@ -215,7 +215,7 @@ function App() {
                     checked={sortOption === 'date-desc'}
                     onChange={() => setSortOption('date-desc')}
                   />
-                  Newest Arrivals
+                  Newest
                 </label>
                 <label className={`sort-option ${sortOption === 'date-asc' ? 'selected' : ''}`}>
                   <input
