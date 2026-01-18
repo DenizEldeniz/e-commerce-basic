@@ -1,19 +1,27 @@
-# E-Commerce Project
+live link: http://93.88.201.226:5173/
 
-A full-stack e-commerce solution featuring a modern React frontend and a robust Node.js/Express backend.
+# E-Commerce Platform
 
-## Overview
-This project simulates a basic e-commerce platform where users can browse products, filter by categories, and manage a shopping cart. It is designed with a focus on clean code and modern web technologies.
+A full-stack e-commerce application built with modern web technologies, featuring product management, shopping cart functionality, and a clean user interface.
 
-## Key Features
-- **React Frontend**
-- **Express Backend**
-- **Product Management**
-- **Shopping Cart**
+## 📝 Development Notes
 
-## Swagger Requests
-![alt text](image.png)
-![alt text](image-1.png)
-![alt text](image-2.png)
+### First-Time Experiences
 
-For more details, please refer to the specific README files in the `client` and `server` directories.
+This project represents several important milestones in my development journey:
+
+- **First Deployment**: This is my first experience deploying a project to production. I purchased a VDS (Virtual Dedicated Server) for deployment, and the IP address in this codebase differs from my actual VDS server IP.
+
+- **First Node.js Backend**: While I typically use .NET for backend development, this is my first time working with Node.js. Thanks to my understanding of backend architecture principles, the transition was smooth.
+
+- **First SQLite & Prisma Experience**: This project marks my first time using SQLite and Prisma ORM. I found Prisma's approach to database management intuitive and enjoyable to work with.
+
+### Design Philosophy
+
+**UI/UX Approach**: While the UI could certainly be more polished, I'm not a designer and design isn't my primary focus. I aimed to create a clean, functional interface based on my aesthetic sensibilities. I intentionally avoided using pre-built frontend templates to build everything from scratch.
+
+**Feature Scope**: To demonstrate my understanding of product attributes and variants, I focused on two categories: **Shoes** and **Clothing**. While I could have added more categories (like electronics) or more attributes (like color in addition to size), I kept it simple to clearly demonstrate the core concepts. The goal was to create a **BASIC yet functional** project that showcases the underlying architecture.
+
+## 🚀 Deployment
+
+This project is deployed on a VDS (Virtual Dedicated Server). Note that the IP addresses in the codebase may differ from the actual production server for security reasons. 

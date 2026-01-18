@@ -13,6 +13,12 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Add private network access header for all responses
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
+    next();
+});
+
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
@@ -22,9 +28,9 @@ app.use('/', routes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
+const PORT = Number(process.env.PORT) || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
     console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
 });
 
